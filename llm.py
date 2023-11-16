@@ -19,7 +19,7 @@ def get_response(prompt):
 
 
 
-# Example usage
+# todo set: export OPENAI_API_KEY=". . ." or pass it via args
 while True:
     # Get user input
     user_input = input("Enter your question or 'quit' to exit: ")
