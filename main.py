@@ -25,10 +25,13 @@ class Bot(discord.Client):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", help="Your token value")
+    parser.add_argument("--chat", help="Your ChatGPT API TOKEN")
     args = parser.parse_args()
     token = args.token
-    print("Token: ")
-    print(token)
+    chat_token = args.chat
+    print("Token:", token)
+    print("Chat-Token:", chat_token)
+
 
     # set up the bots intents, so it can have the right permissions to read messages
     intents = discord.Intents.default()
