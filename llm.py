@@ -1,34 +1,25 @@
-from langchain.llms import OpenAI
+from typing import List
 
-context = "My name is Johannes and i am 22 years old"
-
-llm = OpenAI(model="gpt-3.5-turbo")
-
-
-def generate_prompt(context, user_input):
-    """
-    Combine context and user input into a single prompt.
-    """
-    return f"{context}\n\nUser: {user_input}\nAI:"
-
-def get_response(prompt):
-    """
-    Send the prompt to GPT-3.5 and get a response.
-    """
-    return llm.generate([prompt], max_tokens=500)
+from langchain.chat_models import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.schema import BaseOutputParser
 
 
+class CommaSeparatedListOutputParser(BaseOutputParser[List[str]]):
+    def parse(self, text: str) -> List[str]:
+        return text.strip().split(", ")
 
-# todo set: export OPENAI_API_KEY=". . ." or pass it via args
-while True:
-    # Get user input
-    user_input = input("Enter your question or 'quit' to exit: ")
-    if user_input.lower() == 'quit':
-        break
 
-    # Generate and send prompt
-    prompt = generate_prompt(context, user_input)
-    response = get_response(prompt)
+template = """You are a helpful assistant who generates comma separated lists.
+A user will pass in a category, and you should generate 5 objects in that category in a comma separated list.
+ONLY return a comma separated list, and nothing more."""
 
-    # Print the response
-    print("Response from GPT-3.5:", response)
+human_template = "{text}"
+
+chat_prompt = ChatPromptTemplate.from_messages([
+    ("system", template),
+    ("human", human_template),
+])
+chain = chat_prompt | ChatOpenAI(model="gpt-3.5-turbo") | CommaSeparatedListOutputParser()
+output = chain.invoke({"text": "cars"})
+print(output)
