@@ -1,6 +1,9 @@
 import discord
 import argparse
 
+from llm_preparation import create_retriever, create_chain
+
+
 # formats the message to make the response a little cooler looking
 # title: Title of the embedded message
 # color: color of the top bar of the message given in hex
@@ -15,24 +18,30 @@ class Bot(discord.Client):
 
     async def on_ready(self):
         print('Bot is successfully running')
+        retriever = create_retriever()
+        print('Retriever is successfully created')
+        self.chain = create_chain(retriever)
+        print('Chain is successfully created')
 
     async def on_message(self, message):
         if message.author.id == self.user.id:
             return
-        await print_embedded_message("Echo", 0x00ff00, message.channel, message.content)
+
+        if message.content.startswith('!question '):
+            await print_embedded_message("Question", 0x00ff00, message.channel, message.content)
+            question = message.content[10:]
+            answer = self.chain.invoke(question)
+            await print_embedded_message("Answer", 0x00ff00, message.channel, answer)
+        else:
+            await print_embedded_message("Echo", 0x00ff00, message.channel, message.content)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--token", help="Your token value")
-    parser.add_argument("--chat", help="Your ChatGPT API TOKEN")
     args = parser.parse_args()
     token = args.token
-    chat_token = args.chat
     print("Token:", token)
-    print("Chat-Token:", chat_token)
-
-
     # set up the bots intents, so it can have the right permissions to read messages
     intents = discord.Intents.default()
     intents.message_content = True
