@@ -22,7 +22,7 @@ def create_retriever():
 # second part
 
 def create_template():
-    template = """Beantworte die Frage mit folgendem Kontext:
+    template = """Übersetzte alle deine Antworten auf Englisch. Beantworte die Frage mit folgendem Kontext:
 
 {context}
 
@@ -36,7 +36,8 @@ def format_docs(docs):
     return "\n\n".join([d.page_content for d in docs])
 
 
-def create_chain(retriever):
+def create_chain():
+    retriever = create_retriever()
     model = ChatOpenAI()
     prompt = create_template()
     chain = (
