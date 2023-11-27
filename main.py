@@ -27,11 +27,10 @@ class Bot(discord.Client):
         return result
 
     async def on_ready(self):
-        print('Bot is successfully running')
-        print('Retriever is successfully created')
         self.chain = create_chain()
         # self.chain = ChainStub()
         print('Chain is successfully created')
+        print('Bot is successfully running')
 
     async def on_message(self, message):
         if message.author.id == self.user.id:
@@ -43,6 +42,14 @@ class Bot(discord.Client):
             # made the blocking call async so the bot doesn't crash if the response takes to long
             answer = await self.async_chain_invoke_wrapper(question)
             await print_embedded_message("Answer", 0x00ff00, message.channel, answer)
+        elif message.content.startswith('!help'):
+            embed = discord.Embed(title="Hi, I'm IntraIntel!", color=0x00ff00, description="Ask me a question about "
+                                                                                           "Enactus by writing "
+                                                                                           "'!question' followed by "
+                                                                                           "your question.")
+            embed.add_field(name="Example:", value="!question Am I allowed to throw a party in the office?", inline=True)
+            await message.channel.send(embed=embed)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
