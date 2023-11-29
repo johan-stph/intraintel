@@ -37,11 +37,20 @@ class Bot(discord.Client):
             return
 
         if message.content.startswith('!question '):
-            await print_embedded_message("Please wait while I look up an answer", 0x00ff00, message.channel, "")
+            waiting_text = "Please wait while I look up an answer."
+            message = await print_embedded_message(waiting_text, 0x00ff00, message.channel, "")
             question = message.content[10:]
             # made the blocking call async so the bot doesn't crash if the response takes to long
-            answer = await self.async_chain_invoke_wrapper(question)
-            await print_embedded_message("Answer", 0x00ff00, message.channel, answer)
+            task = asyncio.create_task(self.async_chain_invoke_wrapper(question))
+            counter = 0
+            while not task.done():
+                counter = (counter + 1) % 4
+                await asyncio.sleep(0.25)
+                embed = discord.Embed(title=waiting_text + ("."*counter), color=0x00ff00, description="")
+                await message.edit(embed=embed)
+            answer = task.result()
+            embed = discord.Embed(title="Answer", color=0x00ff00, description=answer)
+            await message.edit(embed=embed)
         elif message.content.startswith('!help'):
             embed = discord.Embed(title="Hi, I'm IntraIntel!", color=0x00ff00, description="Ask me a question about "
                                                                                            "Enactus by writing "
