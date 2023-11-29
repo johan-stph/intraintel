@@ -18,7 +18,6 @@ async def print_embedded_message(title, color, channel, content):
 
 
 class Bot(discord.Client):
-
     chain = None
 
     async def async_chain_invoke_wrapper(self, question):
@@ -32,32 +31,38 @@ class Bot(discord.Client):
         print('Chain is successfully created')
         print('Bot is successfully running')
 
+    async def request_question(self, message):
+        waiting_text = "Please wait while I look up an answer."
+        message = await print_embedded_message(waiting_text, 0x00ff00, message.channel, "")
+        question = message.content[10:]
+        # made the blocking call async so the bot doesn't crash if the response takes to long
+        task = asyncio.create_task(self.async_chain_invoke_wrapper(question))
+        counter = 0
+        while not task.done():
+            counter = (counter + 1) % 4
+            await asyncio.sleep(0.1)
+            embed = discord.Embed(title=waiting_text + ("." * counter), color=0x00ff00, description="")
+            await message.edit(embed=embed)
+        answer = task.result()
+        embed = discord.Embed(title="Answer", color=0x00ff00, description=answer)
+        await message.edit(embed=embed)
+
+    async def request_help(self, message):
+        embed = discord.Embed(title="Hi, I'm IntraIntel!", color=0x00ff00, description="Ask me a question about "
+                                                                                       "Enactus by writing "
+                                                                                       "'!question' followed by "
+                                                                                       "your question.")
+        embed.add_field(name="Example:", value="!question Am I allowed to throw a party in the office?", inline=True)
+        await message.channel.send(embed=embed)
+
     async def on_message(self, message):
         if message.author.id == self.user.id:
             return
 
         if message.content.startswith('!question '):
-            waiting_text = "Please wait while I look up an answer."
-            message = await print_embedded_message(waiting_text, 0x00ff00, message.channel, "")
-            question = message.content[10:]
-            # made the blocking call async so the bot doesn't crash if the response takes to long
-            task = asyncio.create_task(self.async_chain_invoke_wrapper(question))
-            counter = 0
-            while not task.done():
-                counter = (counter + 1) % 4
-                await asyncio.sleep(0.25)
-                embed = discord.Embed(title=waiting_text + ("."*counter), color=0x00ff00, description="")
-                await message.edit(embed=embed)
-            answer = task.result()
-            embed = discord.Embed(title="Answer", color=0x00ff00, description=answer)
-            await message.edit(embed=embed)
+            await self.request_question(message)
         elif message.content.startswith('!help'):
-            embed = discord.Embed(title="Hi, I'm IntraIntel!", color=0x00ff00, description="Ask me a question about "
-                                                                                           "Enactus by writing "
-                                                                                           "'!question' followed by "
-                                                                                           "your question.")
-            embed.add_field(name="Example:", value="!question Am I allowed to throw a party in the office?", inline=True)
-            await message.channel.send(embed=embed)
+            await self.request_help(message)
 
 
 if __name__ == "__main__":
