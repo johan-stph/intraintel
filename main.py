@@ -33,19 +33,19 @@ class Bot(discord.Client):
 
     async def request_question(self, message):
         waiting_text = "Please wait while I look up an answer."
-        message = await print_embedded_message(waiting_text, 0x00ff00, message.channel, "")
+        answer_message = await print_embedded_message(waiting_text, 0x00ff00, message.channel, "")
         question = message.content[10:]
         # made the blocking call async so the bot doesn't crash if the response takes to long
         task = asyncio.create_task(self.async_chain_invoke_wrapper(question))
         counter = 0
         while not task.done():
-            counter = (counter + 1) % 4
+            counter = (counter + 1) % 3
             await asyncio.sleep(0.1)
             embed = discord.Embed(title=waiting_text + ("." * counter), color=0x00ff00, description="")
-            await message.edit(embed=embed)
+            await answer_message.edit(embed=embed)
         answer = task.result()
         embed = discord.Embed(title="Answer", color=0x00ff00, description=answer)
-        await message.edit(embed=embed)
+        await answer_message.edit(embed=embed)
 
     async def request_help(self, message):
         embed = discord.Embed(title="Hi, I'm IntraIntel!", color=0x00ff00, description="Ask me a question about "
