@@ -17,14 +17,11 @@ Kontext: {context}
 Frage: {question}
 """
 
-template_2 = """Use the given context, which is in German, to answer the given question in English. The context is 
-given as a list of mediawiki xml articles. Include the following things in your reply: 
-1. The answer to the question
-2. In which article you found the answer. The name of the article is inside the <title> tag.
+template_2 = """Benutzte den gegebenen Kontext um die folgende Frage zu beantworten. Der Kontext ist als xml Datei einer Mediawiki gegeben.
 
-Question: {question}
+Frage: {question}
 
-Context: {context}
+Kontext: {context}
 """
 
 
