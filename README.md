@@ -21,29 +21,30 @@ This command builds the Docker image named `intraintel` from the current directo
 Once the Docker image is built, you can run the IntraIntel bot in a Docker container using the following command:
 
 ```bash
-sudo docker run -d --name intraintel -e TOKEN="your_token_value" intraintel:latest
+sudo docker run -d --rm --name intraintel -e DISCORD_API_KEY="your_discord_api_key" -e OPENAI_API_KEY="your_openai_api_key" intraintel:latest
 ```
+This command starts the IntraIntel bot in detached mode within a Docker container.
 
-Replace `"your_token_value"` with the actual value you want to set for the `TOKEN` environment variable. This command starts the IntraIntel bot in detached mode within a Docker container.
+A tutorial on how to set up your own discord bot and get a token for it can be found here: https://realpython.com/how-to-make-a-discord-bot-python/#creating-an-application <br>
+Follow the steps in the section "How to Make a Discord Bot in the Developer Portal". <br>
+When creating the bot make sure to enable "Bot > Privileged Gateway > Intents > Message Content Intent".
+When generating the invite Link for the bot, under "OAuth2 > URL Generator" check "bot" in the section "Scopes" and "Administrator" under "Bot Permissions"
+(Note: The Administrator Permission is likely overkill, but makes it easier for testing new functionality. Choose the permission with care when inviting the bot to a non-test server. At the current state the bot needs to be able to read, write and edit messages)
+
+Your OpenAI Key can be found under https://platform.openai.com/api-keys <br>
+Please note, that this version of the bot was tested with an api key of gpt-3.5 plus.
 
 ## Stopping the Container
 
-To stop the running IntraIntel bot container, execute the following command:
+To stop and remove the running IntraIntel bot container, execute the following command:
 
 ```bash
 sudo docker stop intraintel
 ```
 
-## Removing the Container
-
-If you need to remove the stopped IntraIntel bot container, use the following command:
-
-```bash
-sudo docker rm intraintel
-```
-
 ## Starting the python script directly
-Instead of starting the docker container you can run the python script directly with
+Instead of starting the docker container you can run the python script directly.
 ```bash
-python3 main.py --token your_token_value
+export OPENAI_API_KEY=your_openai_api_key
+python3 main.py --token your_discord_api_key
 ```
